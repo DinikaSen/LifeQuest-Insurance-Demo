@@ -8,12 +8,17 @@ type AgentRequest record {
     string[] trainings;
 };
 
-// === Response ===
-type AgentResponse record {
+type AgentEligibility record {
     boolean eligible;
     string[] reasons;
     string[] suggestions;
 };
+
+// === Response ===
+type AgentResponse record {|
+  *http:Ok;
+  AgentEligibility body;
+|};
 
 type PolicyPerProduct record {
     string requiredLicense;
@@ -83,7 +88,7 @@ service / on new http:Listener(8080) {
 
     resource function post eligibility(@http:Payload AgentRequest agent) returns AgentResponse {
         
-        AgentResponse res = {
+        AgentEligibility eligibilityObj = {
             eligible: true,
             reasons: [],
             suggestions: []
@@ -92,35 +97,35 @@ service / on new http:Listener(8080) {
         // Check if state is supported
         var stateRules = productRules[agent.state];
         if stateRules is () {
-            res.eligible = false;
-            res.reasons.push("Unsupported state: " + agent.state);
-            return res;
+            eligibilityObj.eligible = false;
+            eligibilityObj.reasons.push("Unsupported state: " + agent.state);
+            return { body: eligibilityObj };
         }
 
         // Check if product is supported in this state
         var rule = stateRules[agent.product];
         if rule is () {
-            res.eligible = false;
-            res.reasons.push("Product not available in " + agent.state);
-            return res;
+            eligibilityObj.eligible = false;
+            eligibilityObj.reasons.push("Product not available in " + agent.state);
+            return { body: eligibilityObj };
         }
 
         // Check required license
         if (agent.licenses.indexOf(rule.requiredLicense) == ()) {
-            res.eligible = false;
-            res.reasons.push("Missing license: " + rule.requiredLicense);
-            res.suggestions.push("Obtain license: " + rule.requiredLicense);
+            eligibilityObj.eligible = false;
+            eligibilityObj.reasons.push("Missing license: " + rule.requiredLicense);
+            eligibilityObj.suggestions.push("Obtain license: " + rule.requiredLicense);
         }
 
         // Check required trainings
         foreach string training in rule.requiredTrainings {
             if (agent.trainings.indexOf(training) == ()) {
-                res.eligible = false;
-                res.reasons.push("Missing training: " + training);
-                res.suggestions.push("Complete training: " + training);
+                eligibilityObj.eligible = false;
+                eligibilityObj.reasons.push("Missing training: " + training);
+                eligibilityObj.suggestions.push("Complete training: " + training);
             }
         }
 
-        return res;
+        return { body: eligibilityObj };
     }
 }
