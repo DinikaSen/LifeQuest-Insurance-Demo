@@ -1,3 +1,4 @@
+import ballerina/http;
 import ballerina/sql;
 import ballerinax/mysql;
 import ballerinax/mysql.driver as _;
@@ -26,3 +27,5 @@ public isolated function getMysqlClient() returns mysql:Client {
 public isolated function closeDatabaseConnection() returns sql:Error? {
     return mysqlClient.close();
 }
+
+final http:Client ruleEngine = check new ("https://b48cc93e-fa33-4420-a155-bc653b4d46be-dev.e1-eu-north-azure.choreoapis.dev/lbrk/ruleengine/v1.0/eligibility");

@@ -21,3 +21,31 @@ public type Client record {|
     string email;
     string phone;
 |};
+
+type Agent record {|
+    string agent_id;
+    string name;
+    string licenses;
+    string trainings;
+|};
+
+type RuleEngineRequest record {|
+    string state;
+    string product;
+    string[] licenses;
+    string[] trainings;
+|};
+
+type RuleEngineResponse record {|
+    boolean eligible;
+    string[] reasons;
+    string[] suggestions;
+|};
+
+type AgentEligibilityResponse record {|
+    string agent_id;
+    string product;
+    boolean eligible;
+    string[]? reasons;
+    string[]? suggestions;
+|};
