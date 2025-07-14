@@ -65,7 +65,7 @@ service /lifequest on httpDefaultListener {
             };
 
             http:Created created = {
-                body: createSuccessResponse(createdClient, "Client created successfully")
+                body: createdClient
             };
             return created;
         } on fail error err {
