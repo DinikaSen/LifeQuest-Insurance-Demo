@@ -1,13 +1,11 @@
 // API response wrapper
 public type ApiResponse record {|
-    boolean success;
     string message?;
     anydata data?;
 |};
 
 // Error response type
 public type ErrorResponse record {|
-    boolean success;
     string 'error;
     string message?;
 |};

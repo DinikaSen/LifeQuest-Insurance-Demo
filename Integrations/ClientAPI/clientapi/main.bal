@@ -26,7 +26,7 @@ service /lifequest on httpDefaultListener {
             }
             
             http:Ok success = {
-                body: createSuccessResponse(clientResult, "Client retrieved successfully")
+                body: clientResult
             };
             return success;
         } on fail error err {

@@ -54,7 +54,7 @@ service /lifequest on httpDefaultListener {
             };
 
             http:Ok success = {
-                body: createSuccessResponse(response)
+                body: response
             };
             return success;
         } on fail error err {
