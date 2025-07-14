@@ -1,0 +1,4 @@
+[package]
+org = "dinika"
+name = "agentapi"
+version = "0.1.0"
