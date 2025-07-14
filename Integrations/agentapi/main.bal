@@ -6,39 +6,10 @@ import ballerina/regex;
 
 listener http:Listener httpDefaultListener = http:getDefaultListener();
 
-service /clients on httpDefaultListener {
-    resource function get [string clientId]() returns Client|error|json|http:NotFound|http:InternalServerError {
+service /lifequest on httpDefaultListener {
+    resource function get agents/[string agentId]/eligibility(string product, string state) returns http:Ok|http:NotFound|http:InternalServerError|error {
         do {
             mysql:Client dbClient = getMysqlClient();
-            sql:ParameterizedQuery query = `SELECT * FROM clients WHERE client_id = ${clientId}`;
-            Client|sql:Error clientResult = dbClient->queryRow(query);
-
-            if clientResult is error {
-                if clientResult is sql:NoRowsError {
-                    http:NotFound notFound = {
-                        body: createErrorResponse("Client not found", string `Client with ID ${clientId} not found`)
-                    };
-                    return notFound;
-                }
-                string errorMessage = clientResult.message();
-                http:InternalServerError serverError = {
-                    body: createErrorResponse("Failed to retrieve client", errorMessage)
-                };
-                return serverError;
-            }
-            return clientResult;
-        } on fail error err {
-            // handle error
-            return error("unhandled error", err);
-        }
-    }
-}
-
-service /agents on httpDefaultListener {
-    resource function get [string agentId]/eligibility(string product, string state) returns http:InternalServerError|http:NotFound|error|AgentEligibilityResponse {
-        do {
-            mysql:Client dbClient = getMysqlClient();
-
             sql:ParameterizedQuery query = `SELECT 
                     a.agent_id,
                     a.name,
@@ -81,11 +52,16 @@ service /agents on httpDefaultListener {
                 reasons: eligibilityResult.reasons,
                 suggestions: eligibilityResult.suggestions
             };
-            return response;
 
+            http:Ok success = {
+                body: response
+            };
+            return success;
         } on fail error err {
-            // handle error
-            return error("unhandled error", err);
+            http:InternalServerError serverError = {
+                body: createErrorResponse("Internal server error", err.message())
+            };
+            return serverError;
         }
     }
 }

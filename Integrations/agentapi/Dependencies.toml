@@ -377,7 +377,7 @@ modules = [
 
 [[package]]
 org = "dinika"
-name = "lifequest"
+name = "agentapi"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
@@ -388,6 +388,6 @@ dependencies = [
 	{org = "ballerinax", name = "mysql.driver"}
 ]
 modules = [
-	{org = "dinika", packageName = "lifequest", moduleName = "lifequest"}
+	{org = "dinika", packageName = "agentapi", moduleName = "agentapi"}
 ]
 
