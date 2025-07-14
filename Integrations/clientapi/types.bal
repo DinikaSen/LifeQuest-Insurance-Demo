@@ -17,7 +17,11 @@ public type Client record {|
     string last_name;
     string date_of_birth;
     string email;
-    string phone;
+    string phone?;
+    string street?;
+    string city?;
+    string state_code?;
+    string zip?;
 |};
 
 // Client create request type
