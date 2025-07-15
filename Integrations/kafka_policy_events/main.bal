@@ -2,23 +2,19 @@ import ballerina/http;
 import ballerina/log;
 import ballerinax/kafka;
 
-listener kafka:Listener policyEventsListener = new (kafkaServer,
-    topics = ["lifequest-events"],
-    groupId = "consumer-group-1",
-    securityProtocol = kafka:PROTOCOL_SSL,
-    secureSocket = {
-        cert: kafkaCACert,
-        key: {
-            certFile: kafkaServiceCert,
-            keyFile: kafkaServiceKey
-        },
-        protocol: {
-            name: kafka:TLS
-        }
+listener kafka:Listener lifeQuestEventsListener = new (bootstrapServers = kafkaServer, topics = ["lifequest-events"], securityProtocol = kafka:PROTOCOL_SSL, groupId = "consumer-group-1", secureSocket = {
+    cert: kafkaCACert,
+    key: {
+        certFile: kafkaServiceCert,
+        keyFile: kafkaServiceKey
+    },
+    protocol: {
+        name: kafka:TLS
     }
+}
 );
 
-service kafka:Service on policyEventsListener {
+service kafka:Service on lifeQuestEventsListener {
 
     remote function onConsumerRecord(kafka:AnydataConsumerRecord[] records) returns error? {
 
@@ -115,10 +111,10 @@ function handleAddressChange(AddressChangeMessage addressMessage) returns error?
 
 function handleQuoteApproval(QuoteApprovalMessage quoteApprovalMessage) returns error? {
     log:printInfo("Processing quote approval",
-        quoteId = quoteApprovalMessage.quoteId,
-        newStatus = quoteApprovalMessage.newStatus,
-        changedBy = quoteApprovalMessage.changedBy,
-        timestamp = quoteApprovalMessage.timestamp
+            quoteId = quoteApprovalMessage.quoteId,
+            newStatus = quoteApprovalMessage.newStatus,
+            changedBy = quoteApprovalMessage.changedBy,
+            timestamp = quoteApprovalMessage.timestamp
     );
 
     QuoteUpdateRequest quoteUpdateRequest = {
