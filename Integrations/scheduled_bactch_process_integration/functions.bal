@@ -3,7 +3,6 @@ import ballerina/io;
 import ballerina/lang.regexp;
 import ballerina/log;
 import ballerina/sql;
-import ballerina/time;
 
 // Function to get policy enrichment data from MySQL
 function getPolicyEnrichmentData(string policyId) returns PolicyEnrichmentData|error {
@@ -24,7 +23,6 @@ function processCsvFile(string fileName) returns error? {
     log:printInfo("Processing file: " + fileName);
 
     // Read CSV file from SFTP
-
     stream<byte[] & readonly, io:Error?> fileStream = check sftpClient->get("/lifequest/underwriting/incoming/" + fileName);
 
     // Convert stream to string
@@ -114,8 +112,12 @@ function processCsvFile(string fileName) returns error? {
 }
 
 // Function to scan and process all matching CSV files
-function processUnderwritingFiles(ftp:FileInfo[] fileList) returns string[]|error {
-    string[] processedFiles = [];
+function processUnderwritingFiles() returns error? {
+    log:printInfo("Starting underwriting file processing job");
+
+    // List files in incoming directory
+    ftp:FileInfo[] fileList = check sftpClient->list("/lifequest/underwriting/incoming");
+    int processedCount = 0;
 
     foreach ftp:FileInfo fileInfo in fileList {
         string fileName = fileInfo.name;
@@ -127,43 +129,10 @@ function processUnderwritingFiles(ftp:FileInfo[] fileList) returns string[]|erro
                 log:printError("Failed to process file: " + fileName, processResult);
                 return processResult;
             } else {
-                processedFiles.push(fileName);
+                processedCount += 1;
             }
         }
     }
 
-    log:printInfo("Completed underwriting file processing job");
-    return processedFiles;
-}
-
-// Function to execute the file processing job
-function executeFileProcessingJob() returns ProcessingResponse|ErrorResponse {
-    time:Utc currentTime = time:utcNow();
-    string timestamp = time:utcToString(currentTime);
-
-    log:printInfo("Starting underwriting file processing job");
-
-    do {
-        // List files in incoming directory
-        ftp:FileInfo[] fileList = check sftpClient->list("/lifequest/underwriting/incoming");
-        string[] processedFiles = check processUnderwritingFiles(fileList);
-
-        ProcessingResponse response = {
-            status: "success",
-            message: "File processing completed successfully",
-            filesProcessed: processedFiles.length(),
-            processedFiles: processedFiles,
-            timestamp: timestamp
-        };
-
-        return response;
-    } on fail var err {
-        log:printError("Error in file processing job execution", err);
-        ErrorResponse errorResponse = {
-            status: "error",
-            message: "File processing failed: " + err.message(),
-            timestamp: timestamp
-        };
-        return errorResponse;
-    }
+    log:printInfo("Completed underwriting file processing job. Files processed: " + processedCount.toString());
 }

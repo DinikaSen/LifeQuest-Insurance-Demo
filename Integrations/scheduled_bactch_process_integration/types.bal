@@ -24,18 +24,3 @@ public type EnrichedUnderwritingRecord record {|
     string clientName;
     string productType;
 |};
-
-// Response types for HTTP service
-public type ProcessingResponse record {|
-    string status;
-    string message;
-    int filesProcessed?;
-    string[] processedFiles?;
-    string timestamp;
-|};
-
-public type ErrorResponse record {|
-    string status;
-    string message;
-    string timestamp;
-|};

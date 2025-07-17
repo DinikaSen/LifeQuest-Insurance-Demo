@@ -12,14 +12,7 @@ configurable string dbHost = ?;
 configurable int dbPort = ?;
 configurable string dbUsername = ?;
 configurable string dbPassword = ?;
-configurable string dbName= ?;
-
-// Scheduling Configuration
-configurable int scheduledHour = 1;
-configurable int scheduledMinute = 0;
-
-// HTTP Service Configuration
-configurable int httpPort = 8080;
+configurable string dbName = ?;
 
 // SFTP client configuration
 public final ftp:ClientConfiguration sftpConfig = {
