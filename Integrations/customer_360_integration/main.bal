@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/io;
 
 // HTTP service for client 360 endpoint
-service / on new http:Listener(servicePort) {
+service / on new http:Listener(8080) {
 
     // Resource function to handle GET /clients/{clientId}/quotes/summary
     resource function get clients/[string clientId]/quotes/summary(string productName, decimal coverageAmount) returns ClientQuoteSummary|http:InternalServerError|http:NotFound {
