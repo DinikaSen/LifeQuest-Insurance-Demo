@@ -1,5 +1,4 @@
 import ballerina/ftp;
-import ballerinax/mysql;
 
 // SFTP Configuration
 configurable string sftpHost = ?;
@@ -35,10 +34,6 @@ public function getSftpConfig() returns ftp:ClientConfiguration {
             }
         }
     };
-}
-
-public function getMySQLConfig() returns mysql:Options {
-    return {};
 }
 
 // Get configured read time as string for display

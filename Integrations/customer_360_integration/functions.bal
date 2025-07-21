@@ -1,5 +1,6 @@
 import ballerina/sql;
 import ballerina/time;
+import ballerina/regex;
 
 // Function to get client details from database
 function getClientDetails(string clientId) returns ClientInfo|error {
@@ -29,6 +30,39 @@ function getClientDetails(string clientId) returns ClientInfo|error {
     return clientInfo;
 }
 
+// Function to get agent details from database
+function getAgentDetails(string agentId) returns AgentInfo|error {
+
+    sql:ParameterizedQuery query = `SELECT 
+                    a.agent_id,
+                    a.name,
+                    GROUP_CONCAT(DISTINCT al.license_code ORDER BY al.license_code) AS licenses,
+                    GROUP_CONCAT(DISTINCT at.training_code ORDER BY at.training_code) AS trainings
+                FROM 
+                    agents a
+                LEFT JOIN agent_licenses al ON a.agent_id = al.agent_id
+                LEFT JOIN agent_trainings at ON a.agent_id = at.agent_id
+                WHERE 
+                    a.agent_id = ${agentId}
+                GROUP BY 
+                    a.agent_id, a.name;`;
+
+    stream<AgentInfo, sql:Error?> resultStream = mysqlClient->query(query);
+    
+    AgentInfo[]|error agentRecords = from AgentInfo agentRecord in resultStream
+        select agentRecord;
+    
+    if agentRecords is error {
+        return agentRecords;
+    }
+    
+    if agentRecords.length() == 0 {
+        return error("Agent not found");
+    }
+
+    return agentRecords[0];
+}
+
 // Function to get new quote from external service
 function getNewQuote(string productName, int age, string state, decimal coverageAmount) returns QuoteResponse|error {
     QuoteRequest payload = {
@@ -48,6 +82,21 @@ function getNewQuote(string productName, int age, string state, decimal coverage
     
     // QuoteResponse quote = check response.cloneWithType(QuoteResponse);
     return response;
+}
+
+function checkEligibility(string productName, string state, string licesnses, string trainings) returns boolean|error {
+
+    string[] agentLicensesList = regex:split(licesnses, ",");
+    string[] agentTrainingsList = regex:split(trainings, ",");
+
+    RuleEngineRequest requestToRuleEngine = {state: state, product: productName, licenses: agentLicensesList, trainings: agentTrainingsList};
+    RuleEngineResponse|error eligibilityResult = ruleEngine->post("", requestToRuleEngine);
+
+    if eligibilityResult is error {
+        return eligibilityResult;
+    }
+    
+    return eligibilityResult.eligible;
 }
 
 // Function to calculate age from birthdate string

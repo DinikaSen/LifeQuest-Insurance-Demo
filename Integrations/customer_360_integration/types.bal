@@ -14,6 +14,14 @@ public type ClientInfo record {|
     string state;
 |};
 
+type AgentInfo record {|
+    string agent_id;
+    string name;
+    string licenses;
+    string trainings;
+|};
+
+
 type QuoteRequest record {|
     string productName;
     string state;
@@ -30,6 +38,12 @@ public type QuoteResponse record {|
     decimal estimatedPremium;
     string status;
 |};
+
+public type Client360Response record {|
+    string eligibility;
+    ClientQuoteSummary quoteSummary?;
+|};
+
 
 
 // Error response record
@@ -54,4 +68,25 @@ type NewQuote record {|
 type ClientQuoteSummary record {|
     Client 'client;
     NewQuote newQuote;
+|};
+
+type RuleEngineRequest record {|
+    string state;
+    string product;
+    string[] licenses;
+    string[] trainings;
+|};
+
+type RuleEngineResponse record {|
+    boolean eligible;
+    string[] reasons;
+    string[] suggestions;
+|};
+
+type AgentEligibilityResponse record {|
+    string agent_id;
+    string product;
+    boolean eligible;
+    string[] reasons?;
+    string[] suggestions?;
 |};

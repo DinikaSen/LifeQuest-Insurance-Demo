@@ -8,13 +8,20 @@ configurable string dbUser = ?;
 configurable string dbPassword = ?;
 configurable string dbName = ?;
 
+sql:ConnectionPool connPool = { 
+    maxOpenConnections: 5,
+    maxConnectionLifeTime: 1800,
+    minIdleConnections: 2 
+};
+
 // MySQL client initialization with proper configuration
 final mysql:Client mysqlClient = check new (
     host = dbHost,
     port = dbPort,
     database = dbName,
     user = dbUser,
-    password = dbPassword
+    password = dbPassword,
+    connectionPool = connPool
 );
 
 // Function to get MySQL client
