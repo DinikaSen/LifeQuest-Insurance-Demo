@@ -10,8 +10,8 @@ public type ErrorResponse record {|
     string message?;
 |};
 
-// Client data type
-public type Client record {|
+// Client data type - renamed to avoid keyword conflict
+public type ClientRecord record {|
     string client_id;
     string first_name;
     string last_name;
@@ -27,6 +27,15 @@ public type Client record {|
 // Client create request type
 public type ClientCreateRequest record {|
     string client_id;
+    string first_name;
+    string last_name;
+    string date_of_birth;
+    string email;
+    string phone;
+|};
+
+// Client update request type
+public type ClientUpdateRequest record {|
     string first_name;
     string last_name;
     string date_of_birth;
